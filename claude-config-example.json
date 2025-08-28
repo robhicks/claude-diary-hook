@@ -1,0 +1,5 @@
+{
+  "hooks": {
+    "user-prompt-submit": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
+  }
+}
