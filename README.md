@@ -1,6 +1,18 @@
 # Claude Diary Hook 📚
 
+[![GitHub](https://img.shields.io/badge/GitHub-robhicks%2Fclaude--diary--hook-blue?logo=github)](https://github.com/robhicks/claude-diary-hook)
+[![Rust](https://img.shields.io/badge/Rust-1.70+-orange?logo=rust)](https://www.rust-lang.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-3.x-green?logo=sqlite)](https://www.sqlite.org/)
+[![License](https://img.shields.io/badge/License-Public%20Domain-brightgreen)](#license)
+
 A high-performance Rust-based hook for Claude Code that automatically logs your development activities to a SQLite database with intelligent accomplishment inference.
+
+## Quick Links
+
+- 🏠 **Repository**: [github.com/robhicks/claude-diary-hook](https://github.com/robhicks/claude-diary-hook)
+- 📥 **Download**: [Latest Release](https://github.com/robhicks/claude-diary-hook/releases)
+- 🐛 **Issues**: [Report Bug](https://github.com/robhicks/claude-diary-hook/issues)
+- 💡 **Feature Requests**: [Request Feature](https://github.com/robhicks/claude-diary-hook/issues/new)
 
 ## Features
 
@@ -20,28 +32,33 @@ A high-performance Rust-based hook for Claude Code that automatically logs your 
 
 ### Quick Setup
 
-1. **Build the hook**:
+1. **Clone the repository**:
    ```bash
+   git clone https://github.com/robhicks/claude-diary-hook.git ~/.claude/hooks/claude-diary-hook
    cd ~/.claude/hooks/claude-diary-hook
+   ```
+
+2. **Build the hook**:
+   ```bash
    cargo build --release
    ```
 
-2. **Make it executable**:
+3. **Make it executable**:
    ```bash
    chmod +x target/release/claude-diary-hook
    ```
 
-3. **Create the diary directory**:
+4. **Create the diary directory**:
    ```bash
    mkdir -p ~/.claude/diaries
    ```
 
-4. **Test the hook**:
+5. **Test the hook**:
    ```bash
    echo '{"event_type": "test", "user_prompt": "Hello World"}' | ./target/release/claude-diary-hook --test --verbose
    ```
 
-5. **Configure Claude Code**:
+6. **Configure Claude Code**:
    ```bash
    # The hook is automatically configured via ~/.claude/settings.json
    # Verify the configuration exists:
@@ -349,15 +366,43 @@ cargo test
 
 ### Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+We welcome contributions! Here's how to get started:
+
+1. **Fork the repository** on [GitHub](https://github.com/robhicks/claude-diary-hook)
+2. **Clone your fork**:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/claude-diary-hook.git
+   cd claude-diary-hook
+   ```
+3. **Create a feature branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Make your changes** and add tests
+5. **Test your changes**:
+   ```bash
+   cargo test
+   cargo build --release
+   ```
+6. **Commit and push**:
+   ```bash
+   git commit -m "Add your feature description"
+   git push origin feature/your-feature-name
+   ```
+7. **Submit a pull request** on GitHub
+
+### Reporting Issues
+
+Found a bug or have a feature request? Please [open an issue](https://github.com/robhicks/claude-diary-hook/issues) on GitHub.
 
 ## License
 
-NONE
+This project is released into the **Public Domain**. You are free to use, modify, and distribute this software without any restrictions.
+
+## Acknowledgments
+
+- Built with ❤️ for the Claude Code community
+- Created with assistance from [Claude Code](https://claude.ai/code)
 
 ---
 
