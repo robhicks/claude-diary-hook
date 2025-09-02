@@ -7,10 +7,10 @@ echo "🔧 Installing Claude Diary Hook..."
 # Build the project
 ./build.sh
 
-# Create diary directory
-DIARY_DIR="$HOME/.claude/diaries"
-mkdir -p "$DIARY_DIR"
-echo "📁 Created diary directory: $DIARY_DIR"
+# Create Claude directory  
+CLAUDE_DIR="$HOME/.claude"
+mkdir -p "$CLAUDE_DIR"
+echo "📁 Created Claude directory: $CLAUDE_DIR"
 
 # Get the absolute path to the binary
 HOOK_PATH="$(pwd)/target/release/claude-diary-hook"
@@ -36,7 +36,7 @@ echo ""
 echo "3. Test the installation:"
 echo "   ./test.sh"
 echo ""
-echo "4. Your diaries will be automatically created in:"
-echo "   $DIARY_DIR"
+echo "4. Your diary will be automatically created at:"
+echo "   $CLAUDE_DIR/diary.db"
 echo ""
 echo "🎉 Happy automatic diary tracking!"

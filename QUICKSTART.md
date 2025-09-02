@@ -9,11 +9,15 @@ cd ~/.claude/hooks/claude-diary-hook
 ./install.sh
 ```
 
+This will build the project and create the diary directory automatically.
+
 ## 2. Test It Works
 
 ```bash
 ./test.sh
 ```
+
+This runs comprehensive tests to verify all functionality works correctly.
 
 ## 3. Configure Claude Code
 
@@ -29,11 +33,11 @@ Add the hook to your Claude Code settings:
 
 ## Done! ✨
 
-Your diaries will automatically appear in `~/.claude/diaries/` 
+Your diaries will automatically be stored in `~/.claude/diary.db` 
 
-**Example diary entry:**
-```
-~/.claude/diaries/DIARY_2025-08-28.md
+**View your diary entries:**
+```bash
+./target/release/claude-diary-hook --show-recent --limit 5
 ```
 
 ## Need Help?

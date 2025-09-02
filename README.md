@@ -38,38 +38,67 @@ A high-performance Rust-based hook for Claude Code that automatically logs your 
    cd ~/.claude/hooks/claude-diary-hook
    ```
 
-2. **Build the hook**:
+2. **Install and build**:
+   ```bash
+   ./install.sh
+   ```
+   This automatically builds the project and creates the diary directory.
+
+3. **Test the installation**:
+   ```bash
+   ./test.sh
+   ```
+   This runs comprehensive tests to verify everything works correctly.
+
+### Manual Setup (Alternative)
+
+If you prefer manual installation:
+
+1. **Build the hook**:
    ```bash
    cargo build --release
    ```
 
-3. **Make it executable**:
+2. **Make it executable**:
    ```bash
    chmod +x target/release/claude-diary-hook
    ```
 
-4. **Create the diary directory**:
+3. **Create the diary directory**:
    ```bash
-   mkdir -p ~/.claude/diaries
+   mkdir -p ~/.claude
    ```
 
-5. **Test the hook**:
+4. **Test the hook**:
    ```bash
    echo '{"event_type": "test", "user_prompt": "Hello World"}' | ./target/release/claude-diary-hook --test --verbose
    ```
 
-6. **Configure Claude Code**:
+## Configuration
+
+**Configure Claude Code**:
    ```bash
    # The hook is automatically configured via ~/.claude/settings.json
    # Verify the configuration exists:
    cat ~/.claude/settings.json
    ```
    
-   Your settings should contain:
+   **Minimal configuration** (recommended):
    ```json
    {
      "hooks": {
        "user-prompt-submit": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
+     }
+   }
+   ```
+
+   **Full configuration** (captures more events):
+   ```json
+   {
+     "hooks": {
+       "user-prompt-submit": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook",
+       "tool-call": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook",
+       "session-end": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
      }
    }
    ```
@@ -82,7 +111,7 @@ A high-performance Rust-based hook for Claude Code that automatically logs your 
 claude-diary-hook [OPTIONS]
 
 Options:
-  --diary-dir <DIR>    Directory to store diary database [default: ~/.claude/diaries]
+  --diary-dir <DIR>    Directory to store diary database [default: ~/.claude]
   --verbose            Enable verbose output for debugging
   --test              Test mode - prints to stdout instead of writing to database
   --show-recent       Show recent diary entries from database
@@ -131,7 +160,7 @@ EOF
 The hook stores all data in a SQLite database at:
 
 ```
-~/.claude/diaries/diary.db
+~/.claude/diary.db
 ```
 
 ### Database Schema
@@ -197,21 +226,16 @@ The hook can be configured for different Claude Code events:
 ```bash
 # Check current configuration
 cat ~/.claude/settings.json
-
-# The configuration should include:
-{
-  "hooks": {
-    "user-prompt-submit": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
-  }
-}
 ```
 
 ### Hook Event Types
 
 The hook processes these Claude Code events:
-- **user-prompt-submit**: Primary event that captures user inputs and infers accomplishments
-- **tool-call**: Secondary events that track tool usage and file modifications
-- **session-end**: Finalizes session data
+- **user-prompt-submit**: Primary event that captures user inputs and infers accomplishments (required)
+- **tool-call**: Secondary events that track tool usage and file modifications (optional, provides more detail)
+- **session-end**: Finalizes session data (optional, helps with session completion tracking)
+
+**Note**: The minimal configuration with just `user-prompt-submit` is sufficient for most users and captures all essential diary information.
 
 
 ## Smart Accomplishment Inference
@@ -241,7 +265,7 @@ The hook automatically categorizes your work based on user prompt patterns:
 ### Storage Structure
 
 ```
-~/.claude/diaries/
+~/.claude/
 └── diary.db (SQLite database)
 ```
 
@@ -280,6 +304,43 @@ claude --mcp-config ~/.claude/mcp/diary-server.json
 "Use the get_recent_sessions tool to show my last 5 sessions"
 ```
 
+## Upgrading
+
+### Automatic Migration
+
+When upgrading from previous versions that used `~/.claude/diaries/diary.db`, the hook will automatically:
+
+1. **Detect** the old database location
+2. **Move** your existing data to the new location (`~/.claude/diary.db`)
+3. **Clean up** the empty old directory
+4. **Continue** working with all your historical data intact
+
+**What you need to do**: Nothing! Just rebuild and run as normal:
+
+```bash
+./install.sh
+```
+
+The migration message will appear in verbose mode:
+```bash
+./claude-diary-hook --verbose
+# 📦 Migrating database from old location: ~/.claude/diaries/diary.db -> ~/.claude/diary.db
+```
+
+### Manual Migration (if needed)
+
+If automatic migration fails for any reason:
+
+```bash
+# Move the database manually
+mv ~/.claude/diaries/diary.db ~/.claude/diary.db
+
+# Remove empty directory
+rmdir ~/.claude/diaries
+```
+
+**Your data is preserved** - no diary entries will be lost during the upgrade process.
+
 ## Troubleshooting
 
 ### Common Issues
@@ -295,7 +356,7 @@ claude --mcp-config ~/.claude/mcp/diary-server.json
 
 2. **Database directory not found**
    ```bash
-   mkdir -p ~/.claude/diaries
+   mkdir -p ~/.claude
    ```
 
 3. **Permission denied**
@@ -311,10 +372,10 @@ claude --mcp-config ~/.claude/mcp/diary-server.json
 5. **Database corruption (rare)**
    ```bash
    # Check database integrity
-   sqlite3 ~/.claude/diaries/diary.db "PRAGMA integrity_check;"
+   sqlite3 ~/.claude/diary.db "PRAGMA integrity_check;"
    
    # Backup and recreate if needed
-   cp ~/.claude/diaries/diary.db ~/.claude/diaries/diary.db.backup
+   cp ~/.claude/diary.db ~/.claude/diary.db.backup
    ```
 
 ### Debug Mode

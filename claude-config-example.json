@@ -1,5 +1,15 @@
 {
+  "_comment": "Minimal configuration (recommended for most users)",
   "hooks": {
     "user-prompt-submit": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
+  }
+}
+
+{
+  "_comment": "Full configuration (captures more detailed events)",
+  "hooks": {
+    "user-prompt-submit": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook",
+    "tool-call": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook",
+    "session-end": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
   }
 }

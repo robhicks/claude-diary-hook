@@ -94,12 +94,43 @@ else
     echo "❌ Test 6 failed - Database not created"
 fi
 
+# Test 7: Database migration from old location
+echo "📝 Test 7: Database migration from old directory structure"
+MIGRATION_TEST_DIR="/tmp/claude-diary-migration-test"
+OLD_DB_DIR="$MIGRATION_TEST_DIR/diaries"
+mkdir -p "$OLD_DB_DIR"
+
+# Create a database in the old location
+echo '{"event_type": "tool_call", "tool_calls": [{"tool_name": "Edit", "parameters": {"file_path": "/test/migration.txt"}, "success": true}]}' | $HOOK_BINARY --diary-dir "$OLD_DB_DIR" > /dev/null
+
+OLD_DB_FILE="$OLD_DB_DIR/diary.db"
+NEW_DB_FILE="$MIGRATION_TEST_DIR/diary.db"
+
+if [ -f "$OLD_DB_FILE" ]; then
+    # Test migration by running with the parent directory
+    echo '{"event_type": "session_start", "user_prompt": "Test migration"}' | $HOOK_BINARY --diary-dir "$MIGRATION_TEST_DIR" --verbose > /tmp/migration_output.txt 2>&1
+    
+    if [ -f "$NEW_DB_FILE" ] && [ ! -f "$OLD_DB_FILE" ]; then
+        echo "✅ Test 7 passed - Database migration works"
+        echo "   📦 Old database moved to new location"
+        if grep -q "Migrating database" /tmp/migration_output.txt; then
+            echo "   📝 Migration message displayed correctly"
+        fi
+    else
+        echo "❌ Test 7 failed - Database migration broken"
+        echo "   Old DB exists: $([ -f "$OLD_DB_FILE" ] && echo "yes" || echo "no")"
+        echo "   New DB exists: $([ -f "$NEW_DB_FILE" ] && echo "yes" || echo "no")"
+    fi
+else
+    echo "❌ Test 7 failed - Could not create test database in old location"
+fi
+
 # Cleanup
-rm -f /tmp/test*_output.txt
-rm -rf "$TEST_DIR"
+rm -f /tmp/test*_output.txt /tmp/migration_output.txt
+rm -rf "$TEST_DIR" "$MIGRATION_TEST_DIR"
 
 echo ""
-echo "🎉 All tests completed!"
+echo "🎉 All 7 tests completed!"
 echo ""
 echo "📖 Sample diary output:"
 echo "────────────────────────────────────────"

@@ -97,7 +97,7 @@ impl DiaryManager {
         let diary_dir = diary_dir.unwrap_or_else(|| {
             dirs::home_dir()
                 .unwrap_or_else(|| PathBuf::from("."))
-                .join(".claude/diaries")
+                .join(".claude")
         });
 
         if !test_mode {
@@ -106,6 +106,25 @@ impl DiaryManager {
         }
 
         let db_path = diary_dir.join("diary.db");
+        
+        // Handle migration from old directory structure
+        if !test_mode {
+            let old_db_path = diary_dir.join("diaries").join("diary.db");
+            if old_db_path.exists() && !db_path.exists() {
+                if verbose {
+                    eprintln!("📦 Migrating database from old location: {:?} -> {:?}", old_db_path, db_path);
+                }
+                std::fs::rename(&old_db_path, &db_path)
+                    .with_context(|| format!("Failed to migrate database from {:?} to {:?}", old_db_path, db_path))?;
+                    
+                // Clean up old directory if it's empty
+                if let Ok(entries) = std::fs::read_dir(diary_dir.join("diaries")) {
+                    if entries.count() == 0 {
+                        let _ = std::fs::remove_dir(diary_dir.join("diaries"));
+                    }
+                }
+            }
+        }
         
         let mut manager = Self {
             db_path,
