@@ -353,6 +353,7 @@ impl DiaryManager {
             )?;
         }
         
+        
         Ok(())
     }
 
@@ -644,6 +645,7 @@ impl DiaryManager {
             )?;
         }
         
+        
         if self.verbose {
             eprintln!("Saved session {} to database: {:?}", session_id, self.db_path);
         }
@@ -727,6 +729,7 @@ impl DiaryManager {
         
         content
     }
+    
     
     fn show_recent_entries(&self, limit: usize) -> Result<()> {
         if self.test_mode {

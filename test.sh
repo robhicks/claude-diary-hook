@@ -72,26 +72,26 @@ else
     cat /tmp/test5_output.txt
 fi
 
-# Test 6: File writing (creates actual files)
-echo "📝 Test 6: File writing capability"
+# Test 6: Database functionality (creates database only)
+echo "📝 Test 6: Database query capability"
 TEST_DIR="/tmp/claude-diary-test"
 mkdir -p "$TEST_DIR"
 
 echo '{"event_type": "tool_call", "tool_calls": [{"tool_name": "Write", "parameters": {"file_path": "/test/file.txt"}, "success": true}]}' | $HOOK_BINARY --diary-dir "$TEST_DIR" > /dev/null
 
-TODAY=$(date +%Y-%m-%d)
-DIARY_FILE="$TEST_DIR/DIARY_$TODAY.md"
+DB_FILE="$TEST_DIR/diary.db"
 
-if [ -f "$DIARY_FILE" ]; then
-    echo "✅ Test 6 passed - File writing works"
-    echo "   📄 Created: $DIARY_FILE"
-    if grep -q "Code Development" "$DIARY_FILE"; then
-        echo "   📝 Content verification passed"
+if [ -f "$DB_FILE" ]; then
+    QUERY_OUTPUT=$($HOOK_BINARY --diary-dir "$TEST_DIR" --show-recent --limit 1)
+    if echo "$QUERY_OUTPUT" | grep -q "Code Development"; then
+        echo "✅ Test 6 passed - Database query works"
+        echo "   📄 Database: $DB_FILE"
+        echo "   📝 Query verification passed"
     else
-        echo "   ⚠️  Content verification failed"
+        echo "❌ Test 6 failed - Database query broken"
     fi
 else
-    echo "❌ Test 6 failed - File writing broken"
+    echo "❌ Test 6 failed - Database not created"
 fi
 
 # Cleanup
