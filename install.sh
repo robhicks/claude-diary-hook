@@ -27,9 +27,39 @@ echo ""
 echo "2. Example Claude Code hooks configuration:"
 echo '   {
      "hooks": {
-       "user-prompt-submit": "'$HOOK_PATH'",
-       "tool-call": "'$HOOK_PATH'", 
-       "session-end": "'$HOOK_PATH'"
+       "UserpromptSubmit": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "'$HOOK_PATH'"
+             }
+           ]
+         }
+       ],
+       "PostToolUse": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "'$HOOK_PATH'"
+             }
+           ]
+         }
+       ],
+       "SessionEnd": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "'$HOOK_PATH'"
+             }
+           ]
+         }
+       ]
      }
    }'
 echo ""

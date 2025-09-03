@@ -34,7 +34,7 @@ echo "🎉 Claude Diary Hook is ready to use!"
 echo ""
 echo "Next steps:"
 echo "1. Add to your Claude Code hooks configuration:"
-echo '   {"hooks": {"user-prompt-submit": "'$(pwd)'/target/release/claude-diary-hook"}}'
+echo '   {"hooks": {"UserpromptSubmit": [{"matcher": "*", "hooks": [{"type": "command", "command": "'$(pwd)'/target/release/claude-diary-hook"}]}]}}'
 echo ""
 echo "2. Test with: ./test.sh"
 echo "3. View README.md for full documentation"

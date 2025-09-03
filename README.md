@@ -78,27 +78,67 @@ If you prefer manual installation:
 
 **Configure Claude Code**:
    ```bash
-   # The hook is automatically configured via ~/.claude/settings.json
+   # Configuration goes in ~/.claude/settings.json
    # Verify the configuration exists:
    cat ~/.claude/settings.json
    ```
    
-   **Minimal configuration** (recommended):
+   **Minimal configuration** (recommended - captures user prompts):
    ```json
    {
      "hooks": {
-       "user-prompt-submit": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
+       "UserpromptSubmit": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
+             }
+           ]
+         }
+       ]
      }
    }
    ```
 
-   **Full configuration** (captures more events):
+   **Full configuration** (captures more events for detailed tracking):
    ```json
    {
      "hooks": {
-       "user-prompt-submit": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook",
-       "tool-call": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook",
-       "session-end": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
+       "UserpromptSubmit": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
+             }
+           ]
+         }
+       ],
+       "PostToolUse": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
+             }
+           ]
+         }
+       ],
+       "SessionEnd": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook"
+             }
+           ]
+         }
+       ]
      }
    }
    ```
@@ -181,6 +221,7 @@ The database contains these tables:
 - **Real-time Updates**: Data saved immediately as events occur
 - **Structured Queries**: Easy to query and analyze your development patterns
 - **No File Conflicts**: SQLite handles locking and concurrent writes automatically
+- **Smart JSON Parsing**: Automatically extracts meaningful prompts from nested JSON event data
 
 ### Viewing Diary Entries
 
@@ -231,16 +272,16 @@ cat ~/.claude/settings.json
 ### Hook Event Types
 
 The hook processes these Claude Code events:
-- **user-prompt-submit**: Primary event that captures user inputs and infers accomplishments (required)
-- **tool-call**: Secondary events that track tool usage and file modifications (optional, provides more detail)
-- **session-end**: Finalizes session data (optional, helps with session completion tracking)
+- **UserpromptSubmit**: Primary event that captures user inputs and infers accomplishments (required)
+- **PostToolUse**: Tracks tool usage and file modifications after each tool call (optional, provides more detail)
+- **SessionEnd**: Finalizes session data when a session ends (optional, helps with session completion tracking)
 
-**Note**: The minimal configuration with just `user-prompt-submit` is sufficient for most users and captures all essential diary information.
+**Note**: The minimal configuration with just `UserpromptSubmit` is sufficient for most users and captures all essential diary information. Event names are case-sensitive.
 
 
 ## Smart Accomplishment Inference
 
-The hook automatically categorizes your work based on user prompt patterns:
+The hook automatically categorizes your work based on user prompt patterns. It intelligently handles both plain text prompts and nested JSON formats (automatically parsing JSON objects to extract the actual prompt text):
 
 ### Accomplishment Categories
 
@@ -345,7 +386,12 @@ rmdir ~/.claude/diaries
 
 ### Common Issues
 
-1. **Hook not triggering**
+1. **Diary showing raw JSON instead of meaningful text**
+   - This was fixed in the latest version with improved JSON parsing
+   - Rebuild the hook: `cargo build --release`
+   - The hook now automatically extracts actual prompts from nested JSON data
+
+2. **Hook not triggering**
    ```bash
    # Check if hook is configured
    cat ~/.claude/settings.json
@@ -354,22 +400,22 @@ rmdir ~/.claude/diaries
    ls -la ~/.claude/hooks/claude-diary-hook/target/release/claude-diary-hook
    ```
 
-2. **Database directory not found**
+3. **Database directory not found**
    ```bash
    mkdir -p ~/.claude
    ```
 
-3. **Permission denied**
+4. **Permission denied**
    ```bash
    chmod +x target/release/claude-diary-hook
    ```
 
-4. **Multiple Claude Code instances**
+5. **Multiple Claude Code instances**
    - SQLite handles concurrent access automatically
    - Each instance creates its own session in the database
    - No conflicts or data loss
 
-5. **Database corruption (rare)**
+6. **Database corruption (rare)**
    ```bash
    # Check database integrity
    sqlite3 ~/.claude/diary.db "PRAGMA integrity_check;"
@@ -459,6 +505,16 @@ Found a bug or have a feature request? Please [open an issue](https://github.com
 ## License
 
 This project is released into the **Public Domain**. You are free to use, modify, and distribute this software without any restrictions.
+
+## Changelog
+
+### v0.1.1 (2025-09-03)
+- **Fixed**: JSON parsing issue where raw JSON objects were displayed instead of meaningful accomplishments
+- **Added**: Smart JSON parsing to automatically extract actual prompts from nested event data
+- **Improved**: Enhanced troubleshooting documentation
+
+### v0.1.0 (2025-08-28)
+- Initial release with SQLite storage and accomplishment inference
 
 ## Acknowledgments
 

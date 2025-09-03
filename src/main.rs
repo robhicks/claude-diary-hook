@@ -378,17 +378,36 @@ impl DiaryManager {
 
     fn infer_objectives_and_accomplishments(&mut self, event: &ClaudeEvent) {
         if let Some(prompt) = &event.user_prompt {
-            // Extract objectives from user prompts
-            let objective = if prompt.len() > 100 {
-                format!("{}", prompt.chars().take(100).collect::<String>())
+            // Try to parse the prompt as JSON first
+            let actual_prompt = if prompt.starts_with('{') && prompt.ends_with('}') {
+                // Attempt to parse as JSON to extract the actual prompt
+                if let Ok(json_val) = serde_json::from_str::<serde_json::Value>(prompt) {
+                    // Try different possible field names for the actual prompt
+                    json_val.get("prompt")
+                        .or_else(|| json_val.get("user_prompt"))
+                        .or_else(|| json_val.get("message"))
+                        .or_else(|| json_val.get("text"))
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.to_string())
+                        .unwrap_or_else(|| prompt.clone())
+                } else {
+                    prompt.clone()
+                }
             } else {
                 prompt.clone()
+            };
+            
+            // Extract objectives from user prompts
+            let objective = if actual_prompt.len() > 100 {
+                format!("{}", actual_prompt.chars().take(100).collect::<String>())
+            } else {
+                actual_prompt.clone()
             };
             
             self.current_session.objectives.push(objective);
             
             // Infer accomplishments from user prompts
-            self.infer_accomplishments_from_prompt(prompt, event.duration_ms);
+            self.infer_accomplishments_from_prompt(&actual_prompt, event.duration_ms);
         }
     }
 
